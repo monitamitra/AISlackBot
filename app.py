@@ -34,3 +34,49 @@ def get_bot_user_id():
         return response["user_id"]
     except SlackApiError as e:
         print(f"Error: {e}")
+
+def my_function(text):
+    """
+    Custom function to process the text and return a response -> converts text from 
+    lowercase to uppercase.
+
+    Args:
+        text (str): The input text to process.
+    Returns:
+        str: The processed text.
+    """
+    response = text.upper()
+    return response
+
+@app.event("app_mention")
+def handle_mentions(body, say):
+    """
+    Event listener for mentions in slack. 
+    When bot is mentioned, this function processes the text and sends a response.
+
+    Args:
+        body (dict): The event data received from Slack.
+        say (callable): A function for sending a response to the channel.
+    """
+    text = body["event"]["text"]
+    mention = f"<@{SLACK_BOT_USER_ID}>"
+    text = text.replace(mention, "").strip()
+
+    say("Sure, I'll get right on that!")
+    response = my_function(text)
+    say(response)
+
+@flask_app.route("/slack/events", methods=["POST"])
+def slack_events():
+    """
+    Route for handling slack events.
+    This function passes the incoming HTTP requests to the SlackRequestHandler for processing. 
+
+    Returns:
+        Response: The result of handling the request.
+    """
+    return handler.handle(request)
+
+# Run the flask app
+if __name__ == "__main__":
+    flask_app.run()
