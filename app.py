@@ -5,6 +5,7 @@ from slack_bolt.adapter.flask import SlackRequestHandler
 from slack_bolt import App
 from dotenv import find_dotenv, load_dotenv
 from flask import Flask, request
+from functions import draft_email
 
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
@@ -35,19 +36,6 @@ def get_bot_user_id():
     except SlackApiError as e:
         print(f"Error: {e}")
 
-def my_function(text):
-    """
-    Custom function to process the text and return a response -> converts text from 
-    lowercase to uppercase.
-
-    Args:
-        text (str): The input text to process.
-    Returns:
-        str: The processed text.
-    """
-    response = text.upper()
-    return response
-
 @app.event("app_mention")
 def handle_mentions(body, say):
     """
@@ -63,7 +51,7 @@ def handle_mentions(body, say):
     text = text.replace(mention, "").strip()
 
     say("Sure, I'll get right on that!")
-    response = my_function(text)
+    response = draft_email(text)
     say(response)
 
 @flask_app.route("/slack/events", methods=["POST"])
